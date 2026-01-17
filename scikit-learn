@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+
+# 1. Load your dataset
+# For this example, we'll create a dummy structure
+# In reality, you'd use: df = pd.read_csv('your_amr_data.csv')
+data = {
+    'gene_tetA': [1, 0, 1, 0, 1, 0], # Presence (1) or Absence (0)
+    'gene_blaCTX': [0, 1, 1, 0, 0, 1],
+    'gene_ermB': [1, 1, 0, 0, 1, 0],
+    'Resistance_Status': [1, 1, 1, 0, 1, 0] # 1 = Resistant, 0 = Susceptible
+}
+df = pd.DataFrame(data)
+
+# 2. Split Features (X) and Labels (y)
+X = df.drop('Resistance_Status', axis=1)
+y = df['Resistance_Status']
+
+# 3. Train/Test Split (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 4. Initialize and Train the Model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# 5. Make Predictions
+predictions = model.predict(X_test)
+
+# 6. Evaluate Performance
+print(f"Model Accuracy: {accuracy_score(y_test, predictions) * 100:.2f}%")
+print("\nDetailed Report:")
+print(classification_report(y_test, predictions))
+
+# 7. Identify Important Genes (Feature Importance)
+importances = model.feature_importances_
+for i, gene in enumerate(X.columns):
+    print(f"Gene: {gene} | Importance: {importances[i]:.4f}")
